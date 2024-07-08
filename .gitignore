@@ -1,4 +1,4 @@
+.env
 venv
 api.db
 __pycache__
-.env
