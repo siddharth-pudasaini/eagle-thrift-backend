@@ -18,4 +18,4 @@ class ListingModel(SQLModel):
 
 class LoginModel(BaseModel):
     email:EmailStr
-    password:str
+    password:str=Field(...,min_length=8)
