@@ -3,23 +3,28 @@ from sqlmodel import SQLModel,create_engine,Session
 
 from starlette.config import Config
 
-from db_schema import User
+from db_schema import User,Listing
 
-config=Config(".env")
+from sqlalchemy import event
+from datetime import datetime,timezone
 
-#Database details
-_user = config("USER", cast=str)
-_password = config("PASSWORD", cast=str)
-_host = config("HOST", cast=str)
-_database = config("DATABASE", cast=str)
-_port = config("PORT", cast=int, default=3306)
+def register_listeners(cls):
+    @event.listens_for(cls, "before_insert")
+    def set_created_at(mapper, connection, target):
+        target.created_at = datetime.now(timezone.utc)
+        target.updated_at = datetime.now(timezone.utc)
+
+    @event.listens_for(cls, "before_update")
+    def set_updated_at(mapper, connection, target):
+        target.updated_at = datetime.now(timezone.utc)
 
 
+engine=create_engine(f'sqlite:///./api.db',echo=False)
 
-engine=create_engine(f'sqlite:///./api.db',echo=True)
 SQLModel.metadata.create_all(engine)
+register_listeners(User)
+register_listeners(Listing)
 
-User.register_listeners()
 
 def get_session():
     with Session(engine) as session:
