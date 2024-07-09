@@ -5,7 +5,7 @@ from database import get_session
 
 from sqlmodel import Session,select
 
-from input_models import UserModel,TokenData,ListingModel
+from input_models import UserModel,ListingModel,LoginModel
 from auth import Authhandler
 
 
@@ -28,7 +28,7 @@ async def user_registration(user:UserModel,session:Session=Depends(get_session))
     
 
 @app.post("/api/user/login")
-async def user_login(user:UserModel,session:Session=Depends(get_session)):
+async def user_login(user:LoginModel,session:Session=Depends(get_session)):
     result=User.get_user(user.email,session=session)
     if not auth_handler.verify_password(user.password,result.password):
         raise HTTPException(status_code=401,detail="Invalid email or password")
@@ -45,9 +45,11 @@ async def create_listing(listing:ListingModel,session:Session=Depends(get_sessio
 async def get_listing(id:int,session:Session=Depends(get_session)):
     return Listing.get_single_listing(id,session)
 
+# @app.get("/api/listings/")
+# async def get_multiple_listings()
 
 
-#Handling Messaging
+#=============================================Handling Messaging===========================================================
 @app.websocket("/ws/{token}")
 async def websocket_endpoint(websocket: WebSocket, token: str):
     print(token)
