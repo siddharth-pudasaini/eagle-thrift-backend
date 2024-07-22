@@ -1,6 +1,6 @@
 
 from sqlmodel import SQLModel,create_engine,Session
-from db_schema import User,Listing,Category
+from db_schema import User,Listing,Category,Message,Conversation
 from sqlalchemy import event
 from datetime import datetime,timezone
 
@@ -16,12 +16,14 @@ def register_listeners(cls):
         target.updated_at = datetime.now(timezone.utc)
 
 
-engine=create_engine(f'sqlite:///./api.db',echo=True)
+engine=create_engine(f'sqlite:///./api.db')
 
 SQLModel.metadata.create_all(engine)
 register_listeners(User)
 register_listeners(Listing)
 register_listeners(Category)
+register_listeners(Message)
+register_listeners(Conversation)
 
 
 def get_session():
